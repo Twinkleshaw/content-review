@@ -12,13 +12,16 @@ export function UserProvider({ children }) {
     getUsers()
       .then((res) => {
         setUsers(res.data);
-        // Restore last selected user from localStorage
+
         const savedId = localStorage.getItem("currentUserId");
         const saved = res.data.find((u) => u._id === savedId);
-        setCurrentUser(saved || res.data[0] || null);
-        if (!savedId && res.data[0]) {
-          localStorage.setItem("currentUserId", res.data[0]._id);
+        const userToSet = saved || res.data[0] || null;
+
+        if (userToSet) {
+          localStorage.setItem("currentUserId", userToSet._id);
         }
+
+        setCurrentUser(userToSet);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -31,12 +34,6 @@ export function UserProvider({ children }) {
       localStorage.setItem("currentUserId", userId);
     }
   };
-
-  useEffect(() => {
-    if (users.length > 0 && !currentUser) {
-      setCurrentUser(users[0]);
-    }
-  }, [users]);
 
   return (
     <UserContext.Provider value={{ currentUser, users, switchUser, loading }}>
